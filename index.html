@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Budget Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #fbbf24;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #94a3b8;
+            font-weight: 300;
+        }
+        
+        .setup-wizard {
+            max-width: 600px;
+            margin: 60px auto;
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+        
+        .setup-wizard h2 {
+            color: #fbbf24;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .setup-step {
+            display: none;
+        }
+        
+        .setup-step.active {
+            display: block;
+        }
+        
+        .welcome-screen {
+            text-align: center;
+        }
+        
+        .welcome-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+        
+        .welcome-screen p {
+            color: #cbd5e1;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .welcome-features {
+            text-align: left;
+            margin: 32px 0;
+            padding: 20px;
+            background: #1e293b;
+            border-radius: 12px;
+        }
+        
+        .welcome-features li {
+            color: #cbd5e1;
+            margin: 12px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        
+        .welcome-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #475569;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #334155;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+        
+        .form-group .helper-text {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        
+        .form-actions button {
+            flex: 1;
+        }
+        
+        .person-setup {
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .person-setup h4 {
+            color: #fbbf24;
+            margin-bottom: 16px;
+        }
+        
+        .category-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .category-input input:first-child {
+            flex: 2;
+        }
+        
+        .category-input input:last-child {
+            flex: 1;
+        }
+        
+        .add-category-btn {
+            width: 100%;
+            padding: 10px;
+            background: #334155;
+            border: 1px dashed #475569;
+            border-radius: 8px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .add-category-btn:hover {
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+        
+        /* Main Tracker Styles */
+        .main-tracker {
+            display: none;
+        }
+        
+        .main-tracker.active {
+            display: block;
+        }
+        
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        
+        .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .budget-card {
+            background: #334155;
+            border: 2px solid #475569;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .budget-card.selected {
+            border-color: #fbbf24;
+            box-shadow: 0 12px 32px rgba(251, 191, 36, 0.2);
+        }
+        
+        .budget-card h3 {
+            color: #fbbf24;
+            font-size: 1.75rem;
+            margin-bottom: 8px;
+        }
+        
+        .budget-card .subtitle {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 20px;
+        }
+        
+        .budget-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 1.125rem;
+        }
+        
+        .budget-stat .label {
+            color: #cbd5e1;
+        }
+        
+        .budget-stat .value {
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #475569;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            transition: width 0.5s ease;
+        }
+        
+        .usage-text {
+            text-align: center;
+            color: #fbbf24;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .category-breakdown {
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 30px;
+        }
+        
+        .category-breakdown h2 {
+            color: #fbbf24;
+            font-size: 1.75rem;
+            margin-bottom: 24px;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .category-card {
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .category-card:hover {
+            border-color: #fbbf24;
+        }
+        
+        .category-card h4 {
+            color: #cbd5e1;
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+        
+        .category-card .person-tag {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        
+        .category-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 0.875rem;
+        }
+        
+        .category-stat .label {
+            color: #94a3b8;
+        }
+        
+        .category-stat .value {
+            font-weight: 500;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-header h3 {
+            color: #fbbf24;
+            font-size: 1.5rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+        
+        .close-btn:hover {
+            color: white;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+            color: #93c5fd;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #475569;
+        }
+        
+        .step-dot.active {
+            background: #fbbf24;
+            width: 32px;
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .budget-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Setup Wizard -->
+        <div id="setupWizard" class="setup-wizard">
+            <!-- Step 1: Welcome -->
+            <div id="step1" class="setup-step active">
+                <div class="welcome-screen">
+                    <h2>👋 Welcome to Family Budget Tracker!</h2>
+                    <p>Track your family expenses with ease. Sync with Google Sheets and manage budgets together.</p>
+                    
+                    <div class="welcome-features">
+                        <ul style="list-style: none;">
+                            <li>Track multiple family members' spending</li>
+                            <li>Set budgets for each category</li>
+                            <li>Real-time sync with Google Sheets</li>
+                            <li>View spending breakdowns and progress</li>
+                            <li>Mobile-friendly design</li>
+                            <li>100% free and open source</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="nextStep(2)">
+                        Get Started →
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Person 1 Setup -->
+            <div id="step2" class="setup-step">
+                <div class="step-indicator">
+                    <div class="step-dot"></div>
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                </div>
+                
+                <h2>Person 1 Setup</h2>
+                <p style="color: #94a3b8; margin-bottom: 24px;">Set up the first family member</p>
+                
+                <div class="person-setup">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="person1Name" placeholder="e.g., John" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Monthly Budget</label>
+                        <input type="number" id="person1Budget" placeholder="e.g., 50000" min="0" required>
+                        <div class="helper-text">Total monthly budget for all categories</div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="prevStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Person 2 Setup -->
+            <div id="step3" class="setup-step">
+                <div class="step-indicator">
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                </div>
+                
+                <h2>Person 2 Setup</h2>
+                <p style="color: #94a3b8; margin-bottom: 24px;">Set up the second family member</p>
+                
+                <div class="person-setup">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="person2Name" placeholder="e.g., Jane" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Monthly Budget</label>
+                        <input type="number" id="person2Budget" placeholder="e.g., 40000" min="0" required>
+                        <div class="helper-text">Total monthly budget for all categories</div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(4)">Next →</button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Google Sheets Setup -->
+            <div id="step4" class="setup-step">
+                <div class="step-indicator">
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot active"></div>
+                </div>
+                
+                <h2>Google Sheets Connection</h2>
+                <p style="color: #94a3b8; margin-bottom: 24px;">Connect to your Google Sheet for data storage</p>
+                
+                <div class="info-box">
+                    ℹ️ You'll need to create a Google Sheet and set up Apps Script. 
+                    <a href="#" onclick="showInstructions(); return false;" style="color: #fbbf24;">View setup instructions</a>
+                </div>
+                
+                <div class="form-group">
+                    <label>Google Sheets Web App URL</label>
+                    <input type="url" id="webAppUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" required>
+                    <div class="helper-text">Get this from your Apps Script deployment</div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="prevStep(3)">← Back</button>
+                    <button class="btn btn-primary" onclick="completeSetup()">Complete Setup ✓</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Tracker (Hidden Until Setup Complete) -->
+        <div id="mainTracker" class="main-tracker">
+            <div class="header">
+                <h1>Family Budget</h1>
+                <p>Track expenses with Google Sheets sync</p>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <div class="sync-status" id="syncStatus">
+                    <div class="loading"></div>
+                    <span>Syncing...</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+                    <button class="btn btn-primary" onclick="openExpenseModal()">➕ Add Expense</button>
+                    <button class="btn btn-secondary" onclick="openCategoryModal()">📝 Manage Categories</button>
+                    <button class="btn btn-secondary" onclick="resetSetup()">⚙️ Settings</button>
+                </div>
+            </div>
+            
+            <div class="budget-grid" id="budgetGrid"></div>
+            
+            <div class="category-breakdown">
+                <h2>Category Breakdown</h2>
+                <div class="category-grid" id="categoryGrid"></div>
+            </div>
+        </div>
+        
+        <!-- Add Expense Modal -->
+        <div id="expenseModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Expense</h3>
+                    <button class="close-btn" onclick="closeExpenseModal()">×</button>
+                </div>
+                
+                <form id="expenseForm" onsubmit="addExpense(event)">
+                    <div class="form-group">
+                        <label>Person</label>
+                        <select id="expensePerson" required>
+                            <option value="">Select person...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="expenseCategory" required>
+                            <option value="">Select category...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="expenseAmount" placeholder="0" min="0" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="expenseDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Notes (Optional)</label>
+                        <input type="text" id="expenseNotes" placeholder="e.g., Grocery shopping">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Manage Categories Modal -->
+        <div id="categoryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Manage Categories</h3>
+                    <button class="close-btn" onclick="closeCategoryModal()">×</button>
+                </div>
+                
+                <div class="info-box">
+                    Edit budgets for each category. Click the category name and person to update.
+                </div>
+                
+                <div id="categoryManagementContent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        let config = {
+            person1: { name: '', budget: 0 },
+            person2: { name: '', budget: 0 },
+            webAppUrl: '',
+            budgets: {}
+        };
+        
+        let transactions = [];
+        let selectedPerson = null;
+        
+        // Load config from localStorage
+        function loadConfig() {
+            const saved = localStorage.getItem('familyBudgetConfig');
+            if (saved) {
+                config = JSON.parse(saved);
+                document.getElementById('setupWizard').style.display = 'none';
+                document.getElementById('mainTracker').classList.add('active');
+                initializeTracker();
+            }
+        }
+        
+        // Save config to localStorage
+        function saveConfig() {
+            localStorage.setItem('familyBudgetConfig', JSON.stringify(config));
+        }
+        
+        // Setup Wizard Navigation
+        function nextStep(step) {
+            // Validate current step
+            if (step === 3) {
+                const name = document.getElementById('person1Name').value.trim();
+                const budget = parseFloat(document.getElementById('person1Budget').value);
+                if (!name || !budget || budget <= 0) {
+                    alert('Please fill in all fields correctly');
+                    return;
+                }
+                config.person1 = { name, budget };
+            } else if (step === 4) {
+                const name = document.getElementById('person2Name').value.trim();
+                const budget = parseFloat(document.getElementById('person2Budget').value);
+                if (!name || !budget || budget <= 0) {
+                    alert('Please fill in all fields correctly');
+                    return;
+                }
+                config.person2 = { name, budget };
+            }
+            
+            // Hide all steps
+            document.querySelectorAll('.setup-step').forEach(s => s.classList.remove('active'));
+            // Show target step
+            document.getElementById('step' + step).classList.add('active');
+        }
+        
+        function prevStep(step) {
+            document.querySelectorAll('.setup-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+        }
+        
+        function completeSetup() {
+            const url = document.getElementById('webAppUrl').value.trim();
+            
+            if (!url || !url.includes('script.google.com')) {
+                alert('Please enter a valid Google Apps Script Web App URL');
+                return;
+            }
+            
+            config.webAppUrl = url;
+            
+            // Initialize default categories
+            config.budgets = {
+                [config.person1.name]: {
+                    'Groceries': Math.round(config.person1.budget * 0.25),
+                    'Transportation': Math.round(config.person1.budget * 0.15),
+                    'Entertainment': Math.round(config.person1.budget * 0.10),
+                    'Utilities': Math.round(config.person1.budget * 0.15),
+                    'Other': Math.round(config.person1.budget * 0.35)
+                },
+                [config.person2.name]: {
+                    'Groceries': Math.round(config.person2.budget * 0.25),
+                    'Transportation': Math.round(config.person2.budget * 0.15),
+                    'Entertainment': Math.round(config.person2.budget * 0.10),
+                    'Utilities': Math.round(config.person2.budget * 0.15),
+                    'Other': Math.round(config.person2.budget * 0.35)
+                }
+            };
+            
+            saveConfig();
+            
+            document.getElementById('setupWizard').style.display = 'none';
+            document.getElementById('mainTracker').classList.add('active');
+            
+            initializeTracker();
+        }
+        
+        function resetSetup() {
+            if (confirm('Are you sure you want to reset all settings? This will clear your configuration (but not your Google Sheets data).')) {
+                localStorage.removeItem('familyBudgetConfig');
+                location.reload();
+            }
+        }
+        
+        function showInstructions() {
+            const instructions = `
+To connect with Google Sheets:
+
+1. Create a new Google Sheet
+2. Go to Extensions → Apps Script
+3. Paste the provided code (see documentation)
+4. Deploy as Web App
+5. Set "Execute as: Me" and "Who has access: Anyone"
+6. Copy the Web App URL
+7. Paste it here
+
+For detailed instructions, check the documentation that came with this tracker.
+            `;
+            alert(instructions);
+        }
+        
+        // Initialize Tracker
+        function initializeTracker() {
+            updateSyncStatus('Synced');
+            selectedPerson = config.person1.name;
+            
+            // Populate person dropdowns
+            const personSelect = document.getElementById('expensePerson');
+            personSelect.innerHTML = `
+                <option value="">Select person...</option>
+                <option value="${config.person1.name}">${config.person1.name}</option>
+                <option value="${config.person2.name}">${config.person2.name}</option>
+            `;
+            
+            loadData();
+        }
+        
+        function updateSyncStatus(message, isError = false) {
+            const status = document.getElementById('syncStatus');
+            if (isError) {
+                status.innerHTML = `<span style="color: #ef4444;">⚠️</span><span>${message}</span>`;
+            } else if (message === 'loading') {
+                status.innerHTML = `<div class="loading"></div><span>Syncing...</span>`;
+            } else {
+                status.innerHTML = `<span style="color: #10b981;">✓</span><span>${message}</span>`;
+            }
+        }
+        
+        async function loadData() {
+            updateSyncStatus('loading');
+            
+            try {
+                const response = await fetch(config.webAppUrl);
+                const data = await response.json();
+                
+                transactions = data.transactions || [];
+                
+                if (data.budgets && Object.keys(data.budgets).length > 0) {
+                    config.budgets = data.budgets;
+                    saveConfig();
+                } else {
+                    await syncBudgets();
+                }
+                
+                updateSyncStatus('Synced');
+                renderAll();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                updateSyncStatus('Sync failed', true);
+                renderAll();
+            }
+        }
+        
+        async function syncBudgets() {
+            try {
+                await fetch(config.webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'updateBudgets',
+                        budgets: config.budgets
+                    })
+                });
+            } catch (error) {
+                console.error('Error syncing budgets:', error);
+            }
+        }
+        
+        async function syncData(action, data) {
+            updateSyncStatus('loading');
+            
+            try {
+                const response = await fetch(config.webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action,
+                        ...data
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateSyncStatus('Synced');
+                    return true;
+                } else {
+                    updateSyncStatus('Sync failed', true);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error syncing:', error);
+                updateSyncStatus('Sync failed', true);
+                return false;
+            }
+        }
+        
+        function renderAll() {
+            renderBudgetCards();
+            renderCategoryBreakdown();
+            updateCategoryDropdown();
+        }
+        
+        function renderBudgetCards() {
+            const container = document.getElementById('budgetGrid');
+            
+            const people = [config.person1.name, config.person2.name];
+            
+            container.innerHTML = people.map(person => {
+                const personBudget = person === config.person1.name ? config.person1.budget : config.person2.budget;
+                const spent = transactions
+                    .filter(t => t.person === person)
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const remaining = personBudget - spent;
+                const percentage = personBudget > 0 ? (spent / personBudget) * 100 : 0;
+                
+                return `
+                    <div class="budget-card ${selectedPerson === person ? 'selected' : ''}" onclick="selectPerson('${person}')">
+                        <h3>${person}</h3>
+                        <div class="subtitle">Monthly Budget</div>
+                        
+                        <div class="budget-stat">
+                            <span class="label">Budget</span>
+                            <span class="value">PKR ${personBudget.toLocaleString()}</span>
+                        </div>
+                        <div class="budget-stat">
+                            <span class="label">Spent</span>
+                            <span class="value" style="color: #fbbf24;">PKR ${spent.toLocaleString()}</span>
+                        </div>
+                        <div class="budget-stat">
+                            <span class="label">Remaining</span>
+                            <span class="value" style="color: ${remaining >= 0 ? '#10b981' : '#ef4444'};">PKR ${remaining.toLocaleString()}</span>
+                        </div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
+                        </div>
+                        
+                        <div class="usage-text">${percentage.toFixed(1)}% used</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function selectPerson(person) {
+            selectedPerson = person;
+            renderAll();
+        }
+        
+        function renderCategoryBreakdown() {
+            const container = document.getElementById('categoryGrid');
+            
+            if (!selectedPerson) return;
+            
+            const categories = config.budgets[selectedPerson] || {};
+            
+            if (Object.keys(categories).length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 20px;">No categories yet. Click "Manage Categories" to add some!</p>';
+                return;
+            }
+            
+            container.innerHTML = Object.entries(categories).map(([category, budget]) => {
+                const spent = transactions
+                    .filter(t => t.person === selectedPerson && t.category === category)
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const percentage = budget > 0 ? (spent / budget) * 100 : 0;
+                
+                return `
+                    <div class="category-card">
+                        <h4>${category}</h4>
+                        <div class="person-tag">${selectedPerson}</div>
+                        
+                        <div class="category-stat">
+                            <span class="label">Budget:</span>
+                            <span style="color: white;">PKR ${budget.toLocaleString()}</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="label">Spent:</span>
+                            <span style="color: ${spent > budget ? '#ef4444' : '#fbbf24'};">PKR ${spent.toLocaleString()}</span>
+                        </div>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill ${spent > budget ? 'over' : ''}" style="width: ${Math.min(percentage, 100)}%; ${spent > budget ? 'background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);' : ''}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function updateCategoryDropdown() {
+            const select = document.getElementById('expenseCategory');
+            const person = document.getElementById('expensePerson').value;
+            
+            if (!person) {
+                select.innerHTML = '<option value="">Select person first...</option>';
+                return;
+            }
+            
+            const categories = Object.keys(config.budgets[person] || {});
+            
+            select.innerHTML = '<option value="">Select category...</option>' +
+                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        }
+        
+        function openExpenseModal() {
+            document.getElementById('expenseModal').classList.add('active');
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('expensePerson').value = selectedPerson || '';
+            updateCategoryDropdown();
+        }
+        
+        function closeExpenseModal() {
+            document.getElementById('expenseModal').classList.remove('active');
+            document.getElementById('expenseForm').reset();
+        }
+        
+        async function addExpense(event) {
+            event.preventDefault();
+            
+            const expense = {
+                id: Date.now(),
+                person: document.getElementById('expensePerson').value,
+                category: document.getElementById('expenseCategory').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                date: document.getElementById('expenseDate').value,
+                notes: document.getElementById('expenseNotes').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            const success = await syncData('addTransaction', expense);
+            
+            if (success) {
+                transactions.push(expense);
+                closeExpenseModal();
+                renderAll();
+            }
+        }
+        
+        function openCategoryModal() {
+            document.getElementById('categoryModal').classList.add('active');
+            renderCategoryManagement();
+        }
+        
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('active');
+        }
+        
+        function renderCategoryManagement() {
+            const container = document.getElementById('categoryManagementContent');
+            
+            const people = [config.person1.name, config.person2.name];
+            
+            container.innerHTML = people.map(person => `
+                <div class="person-setup">
+                    <h4>${person}'s Categories</h4>
+                    ${Object.entries(config.budgets[person] || {}).map(([category, budget]) => `
+                        <div class="category-stat" style="padding: 12px 0; border-bottom: 1px solid #475569;">
+                            <span style="color: white; font-weight: 500;">${category}</span>
+                            <input 
+                                type="number" 
+                                value="${budget}" 
+                                min="0" 
+                                style="width: 120px; padding: 6px 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: white; text-align: right;"
+                                onchange="updateCategoryBudget('${person}', '${category}', this.value)"
+                            >
+                        </div>
+                    `).join('')}
+                    <button class="add-category-btn" onclick="addNewCategory('${person}')">
+                        + Add Category
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        async function updateCategoryBudget(person, category, newBudget) {
+            const amount = parseFloat(newBudget);
+            
+            if (isNaN(amount) || amount < 0) {
+                alert('Please enter a valid budget amount');
+                renderCategoryManagement();
+                return;
+            }
+            
+            config.budgets[person][category] = amount;
+            saveConfig();
+            
+            const success = await syncBudgets();
+            
+            if (success) {
+                renderAll();
+            } else {
+                alert('Failed to sync budget. Please try again.');
+            }
+        }
+        
+        function addNewCategory(person) {
+            const categoryName = prompt('Enter category name:');
+            if (!categoryName) return;
+            
+            const budget = prompt('Enter budget amount:');
+            const amount = parseFloat(budget);
+            
+            if (isNaN(amount) || amount < 0) {
+                alert('Invalid budget amount');
+                return;
+            }
+            
+            if (!config.budgets[person]) {
+                config.budgets[person] = {};
+            }
+            
+            config.budgets[person][categoryName] = amount;
+            saveConfig();
+            syncBudgets();
+            renderCategoryManagement();
+            renderAll();
+        }
+        
+        async function refreshData() {
+            await loadData();
+        }
+        
+        // Initialize
+        document.getElementById('expensePerson').addEventListener('change', updateCategoryDropdown);
+        loadConfig();
+    </script>
+</body>
+</html>
